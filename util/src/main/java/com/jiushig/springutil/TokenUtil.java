@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.io.UnsupportedEncodingException;
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +24,7 @@ public class TokenUtil {
 
     private static long intervalTime;  // 间隔时间
     private static String issuer;
+    private static String[] tokenHeaders;
 
     private static Algorithm algorithm;
 
@@ -38,14 +39,19 @@ public class TokenUtil {
      * @param time   过期时间 单位m
      * @param issuer
      */
-    public static void init(String secret, int time, String issuer) {
+    public static void init(String secret, int time, String issuer, String[] tokenHeaders) {
         TokenUtil.issuer = issuer;
+        TokenUtil.tokenHeaders = tokenHeaders;
         TokenUtil.intervalTime = time * 1000 * 60;
         try {
             algorithm = Algorithm.HMAC256(secret);
         } catch (Exception e) {
             throw new RuntimeException("Token 初始化失败");
         }
+    }
+
+    public static void init(String secret, int time, String issuer) {
+        TokenUtil.init(secret, time, issuer, null);
     }
 
     /**
@@ -55,8 +61,8 @@ public class TokenUtil {
      * @return
      */
     public static String create(int userId) {
-        HashMap<String, String> hashMap = new HashMap<>();
-        hashMap.put(KEY_USER_ID, String.valueOf(userId));
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put(KEY_USER_ID, userId);
         return create(hashMap);
     }
 
@@ -66,12 +72,19 @@ public class TokenUtil {
      * @param stringMap
      * @return
      */
-    public static String create(Map<String, String> stringMap) {
+    public static String create(Map<String, Object> stringMap) {
         JWTCreator.Builder builder = JWT.create()
                 .withIssuer(issuer);
         builder.withClaim(KEY_TIME, System.currentTimeMillis() + intervalTime);
         if (stringMap != null)
-            stringMap.forEach(builder::withClaim);
+            stringMap.forEach((k, v) -> {
+                if (v instanceof Integer) builder.withClaim(k, (Integer) v);
+                else if (v instanceof Double) builder.withClaim(k, (Double) v);
+                else if (v instanceof Long) builder.withClaim(k, (Long) v);
+                else if (v instanceof String) builder.withClaim(k, (String) v);
+                else if (v instanceof Boolean) builder.withClaim(k, (Boolean) v);
+                else throw new RuntimeException("Value type error, not support " + Object.class);
+            });
         return builder.sign(algorithm);
     }
 
@@ -82,11 +95,21 @@ public class TokenUtil {
      */
     public static DecodedJWT getToken() {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if(attributes == null){
+        if (attributes == null) {
             logger.warn("ServletRequestAttributes is null");
             return null;
         }
         return getToken(attributes.getRequest().getHeader("Authorization"));
+    }
+
+    private static String getTokenFromRequest(HttpServletRequest request) {
+        if (tokenHeaders == null || tokenHeaders.length == 0)
+            return request.getHeader("Authorization");
+        for (String string : tokenHeaders) {
+            if (!CommonUtil.isEmpty(request.getHeader(string)))
+                return request.getHeader(string);
+        }
+        return null;
     }
 
     public static DecodedJWT getToken(String token) {
@@ -111,11 +134,15 @@ public class TokenUtil {
      * @param key
      * @return
      */
-    public static String getByKey(DecodedJWT jwt, String key) {
+    public static <T> T getByKey(DecodedJWT jwt, String key, Class<T> tClazz) {
         if (jwt == null) return null;
         Claim claim = jwt.getClaim(key);
         if (claim.isNull()) return null;
-        return claim.asString();
+        return claim.as(tClazz);
+    }
+
+    public static String getByKey(DecodedJWT jwt, String key) {
+        return getByKey(jwt, key, String.class);
     }
 
 
@@ -126,7 +153,11 @@ public class TokenUtil {
      * @return
      */
     public static String getByKey(String key) {
-        return getByKey(getToken(), key);
+        return getByKey(key, String.class);
+    }
+
+    public static <T> T getByKey(String key, Class<T> tClazz) {
+        return getByKey(getToken(), key, tClazz);
     }
 
     /**
@@ -136,12 +167,12 @@ public class TokenUtil {
      * @return 如果token无效/失效  返回0
      */
     public static int getUserId(VoidCallback unLogin) {
-        String userId = getByKey(KEY_USER_ID);
+        Integer userId = getByKey(KEY_USER_ID, Integer.class);
         if (CommonUtil.isEmpty(userId)) {
             if (unLogin != null) unLogin.done();
             return 0;
         }
-        return Integer.parseInt(userId);
+        return userId;
     }
 
 

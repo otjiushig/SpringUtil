@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Objects;
+
 /**
  * Created by zk on 2018/8/29.
  */
@@ -21,13 +23,13 @@ public class TokenUtilTest {
 
     @Before
     public void init() {
-        TokenUtil.init("test", 10, "test");
+        TokenUtil.init("test", 10, "test",new String[]{"token","token121"});
     }
 
     @Test
     public void test() {
         String s = TokenUtil.create(1);
         logger.info(s);
-        Assert.assertEquals("1", TokenUtil.getByKey(TokenUtil.getToken(s), TokenUtil.KEY_USER_ID));
+        Assert.assertEquals(1, (int) Objects.requireNonNull(TokenUtil.getByKey(TokenUtil.getToken(s), TokenUtil.KEY_USER_ID, Integer.class)));
     }
 }
