@@ -112,16 +112,6 @@ public class TokenUtil {
         return null;
     }
 
-    private static String getTokenFromRequest(HttpServletRequest request) {
-        if (tokenHeaders == null || tokenHeaders.length == 0)
-            return request.getHeader("Authorization");
-        for (String string : tokenHeaders) {
-            if (!CommonUtil.isEmpty(request.getHeader(string)))
-                return request.getHeader(string);
-        }
-        return null;
-    }
-
     public static DecodedJWT getToken(String token) {
         if (CommonUtil.isEmpty(token))
             return null;
