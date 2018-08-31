@@ -99,7 +99,17 @@ public class TokenUtil {
             logger.warn("ServletRequestAttributes is null");
             return null;
         }
-        return getToken(attributes.getRequest().getHeader("Authorization"));
+        return getToken(getTokenFromRequest(attributes.getRequest()));
+    }
+
+    private static String getTokenFromRequest(HttpServletRequest request) {
+        if (tokenHeaders == null || tokenHeaders.length == 0)
+            return request.getHeader("Authorization");
+        for (String string : tokenHeaders) {
+            if (!CommonUtil.isEmpty(request.getHeader(string)))
+                return request.getHeader(string);
+        }
+        return null;
     }
 
     private static String getTokenFromRequest(HttpServletRequest request) {

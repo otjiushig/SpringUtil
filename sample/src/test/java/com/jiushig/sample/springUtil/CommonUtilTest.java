@@ -1,6 +1,7 @@
 package com.jiushig.sample.springUtil;
 
 import com.jiushig.springutil.CommonUtil;
+import com.jiushig.springutil.ServerInfo;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -15,7 +16,7 @@ import static org.junit.Assert.assertTrue;
  * Created by zk on 2018/8/15.
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class CommonUtilTest {
     private final Logger logger = LoggerFactory.getLogger(CommonUtilTest.class);
 
@@ -27,6 +28,11 @@ public class CommonUtilTest {
     @Test
     public void isEmpty() {
         assertTrue(CommonUtil.isEmpty(""));
+    }
+
+    @Test
+    public void getPort() {
+        logger.info(String.valueOf(ServerInfo.getPort()));
     }
 
     @Test

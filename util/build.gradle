@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'org.springframework.boot:spring-boot-starter-web:1.5.9.RELEASE'
+    compileOnly 'org.springframework.boot:spring-boot-starter-web:2.0.4.RELEASE'
     compile 'com.auth0:java-jwt:3.4.0'
     compile 'com.google.code.gson:gson:2.8.5'
 }
