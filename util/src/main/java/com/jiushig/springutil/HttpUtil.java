@@ -103,6 +103,7 @@ public class HttpUtil {
     public static <T> T get(Builder builder, Class<T> c, Predicate<T> predicate) {
         T t = result(doGet(builder), c);
         if (!predicate.test(t)) {
+            builder.refreshHttpHeaders();
             return result(doGet(builder), c);
         }
         return t;
@@ -150,7 +151,10 @@ public class HttpUtil {
      */
     public static <T> T post(Builder builder, Class<T> c, Predicate<T> predicate) {
         T t = result(doPost(builder), c);
-        if (!predicate.test(t)) return result(doPost(builder), c);
+        if (!predicate.test(t)) {
+            builder.refreshHttpHeaders();
+            return result(doPost(builder), c);
+        }
         return t;
     }
 
@@ -208,6 +212,10 @@ public class HttpUtil {
                 this.body = (String) body;
             }
             return this;
+        }
+
+        public void refreshHttpHeaders() {
+            this.headers = getHttpHeaders();
         }
 
         @Override
