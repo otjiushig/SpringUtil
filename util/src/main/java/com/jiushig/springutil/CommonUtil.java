@@ -57,7 +57,7 @@ public class CommonUtil {
             try {
                 copyObject.getClass().getField(field.getName()).set(copyObject, field.get(object));
             } catch (Exception e) {
-                logger.warn("对象拷贝失败 " + object.toString(), e);
+                logger.warn("The object copy failed : " + object.toString(), e);
             }
         }
     }
@@ -137,7 +137,7 @@ public class CommonUtil {
             }
             return ip;
         } catch (Exception e) {
-            logger.warn("获取IP信息失败", e.getMessage());
+            logger.warn("Ip information got failed", e.getMessage());
         }
         return null;
     }

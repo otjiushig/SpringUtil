@@ -46,7 +46,7 @@ public class TokenUtil {
         try {
             algorithm = Algorithm.HMAC256(secret);
         } catch (Exception e) {
-            throw new RuntimeException("Token 初始化失败");
+            throw new RuntimeException("Token init fail");
         }
     }
 
@@ -121,7 +121,7 @@ public class TokenUtil {
                 .build();
         DecodedJWT verify = verifier.verify(token);
         if (verify.getClaim(KEY_TIME).asLong() < System.currentTimeMillis()) {
-            logger.warn("Token已过期 " + token);
+            logger.warn("Token expired :" + token);
             return null;
         }
         return verify;

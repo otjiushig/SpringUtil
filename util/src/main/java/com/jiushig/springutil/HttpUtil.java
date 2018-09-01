@@ -37,7 +37,7 @@ public class HttpUtil {
 
     public static void setToken(String token) {
         HttpUtil.token = token;
-        logger.debug(LoggerBuilder.get("token更新成功").setDescribe(token).build());
+        logger.debug(LoggerBuilder.get("Token update success.").setDescribe(token).build());
     }
 
     private static String request(Builder builder, HttpMethod method) {
@@ -45,8 +45,8 @@ public class HttpUtil {
         assert builder.url != null;
         assert method != null;
 
-        logger.info(LoggerBuilder.get("请求地址").setDescribe(builder.url).build());
-        logger.debug(LoggerBuilder.get("请求详情").setDescribe(builder).build());
+        logger.info(LoggerBuilder.get("Request url").setDescribe(builder.url).build());
+        logger.debug(LoggerBuilder.get("Request detail").setDescribe(builder).build());
         StringBuilder url = new StringBuilder(builder.url);
         if (builder.params != null) {
             url.append("?");
@@ -59,9 +59,10 @@ public class HttpUtil {
             throw new HttpException(String.valueOf(response.getStatusCode().value()) + "  " + builder.toString());
         }
 
-        logger.info(LoggerBuilder.get("请求成功").setDescribe(builder.url).build());
+        logger.info(LoggerBuilder.get("Response success").setDescribe(builder.url).build());
         String result = response.getBody();
-        logger.debug(LoggerBuilder.get("请求结果").setDescribe(result).build());
+        if (result != null) result = result.trim().replaceAll("\n", "");
+        logger.debug(LoggerBuilder.get("Response detail").setDescribe(result).build());
         return result;
     }
 

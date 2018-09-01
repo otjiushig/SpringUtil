@@ -25,7 +25,7 @@ public class SpringUtil implements ApplicationContextAware {
         if (context == null) {
             context = applicationContext;
         }
-        logger.debug("初始化 applicationContext 完成 " + applicationContext);
+        logger.debug("Initializing applicationContext finished :" + applicationContext);
     }
 
     public static ApplicationContext getContext() {

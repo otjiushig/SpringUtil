@@ -22,7 +22,7 @@ public class ServerInfo implements ApplicationListener<EmbeddedServletContainerI
      */
     public static int getPort() {
         if (event == null) {
-            throw new RuntimeException("ServerInfo 未初始化");
+            throw new RuntimeException("ServerInfo uninitialized");
         }
         return event.getEmbeddedServletContainer().getPort();
     }
