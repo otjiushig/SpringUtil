@@ -8,6 +8,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * Created by zkzmz on 2017/11/4.
@@ -77,8 +78,34 @@ public class HttpUtil {
         return request(builder, HttpMethod.GET);
     }
 
+    /**
+     * {@link #doGet(Builder)}
+     *
+     * @param builder
+     * @param c
+     * @param <T>     return T
+     * @return
+     */
     public static <T> T get(Builder builder, Class<T> c) {
         return result(doGet(builder), c);
+    }
+
+    /**
+     * {@link #get(Builder, Class)}
+     * If predicate is return true, This method will replay execute.
+     *
+     * @param builder
+     * @param c
+     * @param predicate
+     * @param <T>
+     * @return
+     */
+    public static <T> T get(Builder builder, Class<T> c, Predicate<T> predicate) {
+        T t = result(doGet(builder), c);
+        if (!predicate.test(t)) {
+            return result(doGet(builder), c);
+        }
+        return t;
     }
 
     public static <T> T get(Builder builder, TypeToken<T> typeToken) {
@@ -99,8 +126,32 @@ public class HttpUtil {
         return request(builder, HttpMethod.POST);
     }
 
+    /**
+     * {@link #doPost(Builder)}
+     *
+     * @param builder
+     * @param c
+     * @param <T>
+     * @return
+     */
     public static <T> T post(Builder builder, Class<T> c) {
         return result(doPost(builder), c);
+    }
+
+    /**
+     * {@link #post(Builder, Class)}
+     * If predicate is return true, This method will replay execute.
+     *
+     * @param builder
+     * @param c
+     * @param predicate
+     * @param <T>
+     * @return
+     */
+    public static <T> T post(Builder builder, Class<T> c, Predicate<T> predicate) {
+        T t = result(doPost(builder), c);
+        if (!predicate.test(t)) return result(doPost(builder), c);
+        return t;
     }
 
     public static <T> T post(Builder builder, TypeToken<T> typeToken) {
