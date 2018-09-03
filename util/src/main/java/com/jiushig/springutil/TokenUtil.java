@@ -14,6 +14,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by zkzmz on 2017/8/17.
@@ -94,12 +95,9 @@ public class TokenUtil {
      * @return 可能为null
      */
     public static DecodedJWT getToken() {
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attributes == null) {
-            logger.warn("ServletRequestAttributes is null");
-            return null;
-        }
-        return getToken(getTokenFromRequest(attributes.getRequest()));
+        DecodedJWT jwt = (DecodedJWT) SessionUtil.get("tokenInfo");
+        if (jwt != null) return jwt;
+        return getToken(getTokenFromRequest(Objects.requireNonNull(SessionUtil.getRequestAttribute()).getRequest()));
     }
 
     private static String getTokenFromRequest(HttpServletRequest request) {
@@ -124,6 +122,7 @@ public class TokenUtil {
             logger.warn("Token expired :" + token);
             return null;
         }
+        SessionUtil.set("tokenInfo", verify);
         return verify;
     }
 

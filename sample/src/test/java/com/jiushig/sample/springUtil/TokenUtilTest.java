@@ -31,5 +31,6 @@ public class TokenUtilTest {
         String s = TokenUtil.create(1);
         logger.info(s);
         Assert.assertEquals(1, (int) Objects.requireNonNull(TokenUtil.getByKey(TokenUtil.getToken(s), TokenUtil.KEY_USER_ID, Integer.class)));
+
     }
 }
